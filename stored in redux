@@ -1,0 +1,97 @@
+
+
+
+//App.js
+
+
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { actions } from "./Action";
+
+function App() {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  const getUsers = () => {
+    return async (dis) => {
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+      const jsonData = await res.json();
+      dis({ type: actions.FETCH, payload: jsonData });
+    };
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          dispatch(getUsers());
+        }}
+      >
+        getData
+      </button>
+
+      {user.map((x) => {
+        return (
+          <>
+            <h3>
+              {x.id} &nbsp; {x.title}
+            </h3>
+            <p>{x.body}</p>
+          </>
+        );
+      })}
+    </>
+  );
+}
+export default App;
+
+
+
+
+
+
+
+//Action.js
+export let actions = {
+  FETCH:'FETCH'
+}
+
+
+
+//Reducer.js
+
+import { actions } from "./Action";
+import { combineReducers } from "redux";
+
+export const userReducer = (state = [], action) => {
+  switch (action.type) {
+    case actions.FETCH:
+      return action.payload;
+
+    default:
+      return state;
+  }
+};
+
+export const rootReducer = combineReducers({
+  user: userReducer
+});
+
+
+
+
+
+//Store.js
+
+import { applyMiddleware, createStore } from "redux";
+import { rootReducer } from "./Reducer";
+import thunk from "redux-thunk";
+
+export const store = createStore(rootReducer, applyMiddleware(thunk));
+
+
+
+
+
+
+
